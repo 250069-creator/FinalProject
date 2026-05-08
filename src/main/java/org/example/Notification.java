@@ -11,7 +11,7 @@ public class Notification {
     public Notification(String notificationId, String content) {
         this.notificationId = notificationId;
         this.content = content;
-        this.createdOn = new Date(); // automatically sets current date
+        this.createdOn = new Date();
     }
 
     public void send() {

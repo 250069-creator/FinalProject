@@ -8,22 +8,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 // This class handles ALL database operations
-// One class responsible for connecting, saving, and reading data
 public class DatabaseManager {
 
-    // The database file will be created in your project folder
-    // "hotel.db" is the name of the SQLite file
+    // database file will be created in your project folder
     private static final String DB_URL = "jdbc:sqlite:hotel.db";
 
-    // This variable holds our connection to the database
+    // holds our connection to the database
     private Connection connection;
 
     // ─────────────────────────────────
     // CONNECT TO DATABASE
     // ─────────────────────────────────
-
-    // Opens connection to the database
-    // Creates the database file if it does not exist yet
     public void connect() {
         try {
             connection = DriverManager.getConnection(DB_URL);
@@ -33,7 +28,9 @@ public class DatabaseManager {
         }
     }
 
-    // Closes the database connection when we are done
+    // ─────────────────────────────────
+    // DISCONNECT FROM DATABASE
+    // ─────────────────────────────────
     public void disconnect() {
         try {
             if (connection != null) {
@@ -46,26 +43,24 @@ public class DatabaseManager {
     }
 
     // ─────────────────────────────────
-    // CREATE TABLES
-    // Creates all tables when app starts
-    // IF NOT EXISTS means it won't crash if tables already exist
+    // CREATE ALL TABLES
     // ─────────────────────────────────
     public void createTables() {
         try {
             Statement stmt = connection.createStatement();
 
-            // Table for Rooms
+            // rooms table
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS rooms (" +
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " + // auto number ID
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "room_number TEXT NOT NULL, " +
                             "style TEXT NOT NULL, " +
-                            "price REAL NOT NULL, " +       // REAL = decimal number
+                            "price REAL NOT NULL, " +
                             "status TEXT NOT NULL" +
                             ")"
             );
 
-            // Table for Guests
+            // guests table
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS guests (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -76,19 +71,19 @@ public class DatabaseManager {
                             ")"
             );
 
-            // Table for Bookings
+            // bookings table
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS bookings (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "reservation_number TEXT NOT NULL, " +
                             "guest_name TEXT NOT NULL, " +
                             "room_number TEXT NOT NULL, " +
-                            "duration INTEGER NOT NULL, " +  // INTEGER = whole number
+                            "duration INTEGER NOT NULL, " +
                             "status TEXT NOT NULL" +
                             ")"
             );
 
-            // Table for Invoices/Payments
+            // invoices table
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS invoices (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -99,15 +94,32 @@ public class DatabaseManager {
                             ")"
             );
 
-            // Table for Notifications
+            // notifications table
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS notifications (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            "type TEXT NOT NULL, " +         // EMAIL or POSTAL
-                            "recipient TEXT NOT NULL, " +    // email address or postal address
+                            "type TEXT NOT NULL, " +
+                            "recipient TEXT NOT NULL, " +
                             "message TEXT NOT NULL, " +
-                            "sent_on TEXT NOT NULL" +         // date and time it was sent
+                            "sent_on TEXT NOT NULL" +
                             ")"
+            );
+
+            // users table for login system
+            stmt.execute(
+                    "CREATE TABLE IF NOT EXISTS users (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "username TEXT NOT NULL UNIQUE, " +
+                            "password TEXT NOT NULL, " +
+                            "role TEXT NOT NULL" +
+                            ")"
+            );
+
+            // create default manager account on first run
+            // OR IGNORE means if manager already exists nothing happens
+            stmt.execute(
+                    "INSERT OR IGNORE INTO users (username, password, role) " +
+                            "VALUES ('manager', 'manager123', 'MANAGER')"
             );
 
             System.out.println("All tables created successfully!");
@@ -120,20 +132,17 @@ public class DatabaseManager {
     // ─────────────────────────────────
     // SAVE ROOM
     // ─────────────────────────────────
-    public boolean saveRoom(String roomNumber, String style, double price, String status) {
+    public boolean saveRoom(String roomNumber, String style,
+                            double price, String status) {
         try {
-            // PreparedStatement is safer than building SQL string manually
-            // ? marks are placeholders filled in below
-            String sql = "INSERT INTO rooms (room_number, style, price, status) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO rooms (room_number, style, price, status) " +
+                    "VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
-            // Fill in the ? placeholders in order
-            pstmt.setString(1, roomNumber);  // first ?
-            pstmt.setString(2, style);       // second ?
-            pstmt.setDouble(3, price);       // third ?
-            pstmt.setString(4, status);      // fourth ?
-
-            pstmt.executeUpdate(); // runs the INSERT command
+            pstmt.setString(1, roomNumber);
+            pstmt.setString(2, style);
+            pstmt.setDouble(3, price);
+            pstmt.setString(4, status);
+            pstmt.executeUpdate();
             System.out.println("Room saved to database!");
             return true;
 
@@ -146,16 +155,16 @@ public class DatabaseManager {
     // ─────────────────────────────────
     // SAVE GUEST
     // ─────────────────────────────────
-    public boolean saveGuest(String name, String email, String phone, String accountType) {
+    public boolean saveGuest(String name, String email,
+                             String phone, String accountType) {
         try {
-            String sql = "INSERT INTO guests (name, email, phone, account_type) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO guests (name, email, phone, account_type) " +
+                    "VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
             pstmt.setString(1, name);
             pstmt.setString(2, email);
             pstmt.setString(3, phone);
             pstmt.setString(4, accountType);
-
             pstmt.executeUpdate();
             System.out.println("Guest saved to database!");
             return true;
@@ -176,13 +185,11 @@ public class DatabaseManager {
                     "(reservation_number, guest_name, room_number, duration, status) " +
                     "VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
             pstmt.setString(1, reservationNumber);
             pstmt.setString(2, guestName);
             pstmt.setString(3, roomNumber);
             pstmt.setInt(4, duration);
             pstmt.setString(5, status);
-
             pstmt.executeUpdate();
             System.out.println("Booking saved to database!");
             return true;
@@ -202,12 +209,10 @@ public class DatabaseManager {
             String sql = "INSERT INTO invoices (amount, payment_method, details, status) " +
                     "VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
             pstmt.setDouble(1, amount);
             pstmt.setString(2, paymentMethod);
             pstmt.setString(3, details);
             pstmt.setString(4, status);
-
             pstmt.executeUpdate();
             System.out.println("Invoice saved to database!");
             return true;
@@ -227,12 +232,10 @@ public class DatabaseManager {
             String sql = "INSERT INTO notifications (type, recipient, message, sent_on) " +
                     "VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
-            pstmt.setString(1, type);       // "EMAIL" or "POSTAL"
-            pstmt.setString(2, recipient);  // email or address
+            pstmt.setString(1, type);
+            pstmt.setString(2, recipient);
             pstmt.setString(3, message);
-            pstmt.setString(4, sentOn);     // current date and time
-
+            pstmt.setString(4, sentOn);
             pstmt.executeUpdate();
             System.out.println("Notification saved to database!");
             return true;
@@ -245,16 +248,14 @@ public class DatabaseManager {
 
     // ─────────────────────────────────
     // GET ALL ROOMS
-    // Returns a list of all rooms as strings for displaying
     // ─────────────────────────────────
     public ArrayList<String> getAllRooms() {
         ArrayList<String> rooms = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM rooms";
-            Statement stmt  = connection.createStatement();
-            ResultSet rs    = stmt.executeQuery(sql);
+            String sql    = "SELECT * FROM rooms";
+            Statement stmt = connection.createStatement();
+            ResultSet rs   = stmt.executeQuery(sql);
 
-            // rs.next() moves to next row, returns false when no more rows
             while (rs.next()) {
                 String room =
                         "Room: "   + rs.getString("room_number") + " | " +
@@ -275,7 +276,7 @@ public class DatabaseManager {
     public ArrayList<String> getAllGuests() {
         ArrayList<String> guests = new ArrayList<>();
         try {
-            String sql  = "SELECT * FROM guests";
+            String sql    = "SELECT * FROM guests";
             Statement stmt = connection.createStatement();
             ResultSet rs   = stmt.executeQuery(sql);
 
@@ -364,5 +365,112 @@ public class DatabaseManager {
             System.out.println("Failed to get notifications: " + e.getMessage());
         }
         return notifications;
+    }
+
+    // ─────────────────────────────────
+    // CHECK LOGIN
+    // returns role if correct, null if wrong
+    // ─────────────────────────────────
+    public String checkLogin(String username, String password) {
+        try {
+            String sql = "SELECT role FROM users " +
+                    "WHERE username = ? AND password = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("role"); // "MANAGER" or "RECEPTIONIST"
+            }
+
+        } catch (Exception e) {
+            System.out.println("Login check failed: " + e.getMessage());
+        }
+        return null; // login failed
+    }
+
+    // ─────────────────────────────────
+    // SAVE NEW RECEPTIONIST
+    // called by manager to create accounts
+    // ─────────────────────────────────
+    public boolean saveReceptionist(String username, String password) {
+        try {
+            // check if username already exists
+            String checkSql = "SELECT id FROM users WHERE username = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSql);
+            checkStmt.setString(1, username);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("Username already exists!");
+                return false;
+            }
+
+            // save the new receptionist
+            String sql = "INSERT INTO users (username, password, role) " +
+                    "VALUES (?, ?, 'RECEPTIONIST')";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+            System.out.println("Receptionist created: " + username);
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Failed to save receptionist: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ─────────────────────────────────
+    // GET ALL RECEPTIONISTS
+    // used by manager to see all accounts
+    // ─────────────────────────────────
+    public ArrayList<String> getAllReceptionists() {
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            String sql    = "SELECT username FROM users WHERE role = 'RECEPTIONIST'";
+            Statement stmt = connection.createStatement();
+            ResultSet rs   = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                list.add("👤 " + rs.getString("username") +
+                        "  |  Role: RECEPTIONIST");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Failed to get receptionists: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // ─────────────────────────────────
+    // DELETE RECEPTIONIST
+    // manager can remove an account
+    // ─────────────────────────────────
+    public boolean deleteReceptionist(String username) {
+        try {
+            String sql = "DELETE FROM users " +
+                    "WHERE username = ? AND role = 'RECEPTIONIST'";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, username);
+            int rowsAffected = pstmt.executeUpdate();
+
+            // if rowsAffected is 0 the username was not found
+            if (rowsAffected == 0) {
+                return false;
+            }
+
+            System.out.println("Receptionist deleted: " + username);
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Failed to delete receptionist: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void createUsersTable() {
     }
 }
