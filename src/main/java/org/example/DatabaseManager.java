@@ -7,18 +7,14 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-// This class handles ALL database operations
+
 public class DatabaseManager {
 
-    // database file will be created in your project folder
     private static final String DB_URL = "jdbc:sqlite:hotel.db";
 
-    // holds our connection to the database
     private Connection connection;
 
-    // ─────────────────────────────────
-    // CONNECT TO DATABASE
-    // ─────────────────────────────────
+
     public void connect() {
         try {
             connection = DriverManager.getConnection(DB_URL);
@@ -28,9 +24,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // DISCONNECT FROM DATABASE
-    // ─────────────────────────────────
     public void disconnect() {
         try {
             if (connection != null) {
@@ -42,14 +35,12 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // CREATE ALL TABLES
-    // ─────────────────────────────────
+
     public void createTables() {
         try {
             Statement stmt = connection.createStatement();
 
-            // rooms table
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS rooms (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -60,7 +51,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // guests table
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS guests (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -71,7 +62,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // bookings table
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS bookings (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -83,7 +74,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // invoices table
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS invoices (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -94,7 +85,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // notifications table
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS notifications (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -105,7 +96,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // users table for login system
+
             stmt.execute(
                     "CREATE TABLE IF NOT EXISTS users (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -115,8 +106,7 @@ public class DatabaseManager {
                             ")"
             );
 
-            // create default manager account on first run
-            // OR IGNORE means if manager already exists nothing happens
+
             stmt.execute(
                     "INSERT OR IGNORE INTO users (username, password, role) " +
                             "VALUES ('manager', 'manager123', 'MANAGER')"
@@ -129,9 +119,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // SAVE ROOM
-    // ─────────────────────────────────
     public boolean saveRoom(String roomNumber, String style,
                             double price, String status) {
         try {
@@ -152,9 +139,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // SAVE GUEST
-    // ─────────────────────────────────
     public boolean saveGuest(String name, String email,
                              String phone, String accountType) {
         try {
@@ -175,9 +159,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // SAVE BOOKING
-    // ─────────────────────────────────
     public boolean saveBooking(String reservationNumber, String guestName,
                                String roomNumber, int duration, String status) {
         try {
@@ -200,9 +181,7 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // SAVE INVOICE
-    // ─────────────────────────────────
+
     public boolean saveInvoice(double amount, String paymentMethod,
                                String details, String status) {
         try {
@@ -223,9 +202,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // SAVE NOTIFICATION
-    // ─────────────────────────────────
     public boolean saveNotification(String type, String recipient,
                                     String message, String sentOn) {
         try {
@@ -246,9 +222,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // GET ALL ROOMS
-    // ─────────────────────────────────
     public ArrayList<String> getAllRooms() {
         ArrayList<String> rooms = new ArrayList<>();
         try {
@@ -270,9 +243,6 @@ public class DatabaseManager {
         return rooms;
     }
 
-    // ─────────────────────────────────
-    // GET ALL GUESTS
-    // ─────────────────────────────────
     public ArrayList<String> getAllGuests() {
         ArrayList<String> guests = new ArrayList<>();
         try {
@@ -294,9 +264,6 @@ public class DatabaseManager {
         return guests;
     }
 
-    // ─────────────────────────────────
-    // GET ALL BOOKINGS
-    // ─────────────────────────────────
     public ArrayList<String> getAllBookings() {
         ArrayList<String> bookings = new ArrayList<>();
         try {
@@ -319,9 +286,6 @@ public class DatabaseManager {
         return bookings;
     }
 
-    // ─────────────────────────────────
-    // GET ALL INVOICES
-    // ─────────────────────────────────
     public ArrayList<String> getAllInvoices() {
         ArrayList<String> invoices = new ArrayList<>();
         try {
@@ -343,9 +307,6 @@ public class DatabaseManager {
         return invoices;
     }
 
-    // ─────────────────────────────────
-    // GET ALL NOTIFICATIONS
-    // ─────────────────────────────────
     public ArrayList<String> getAllNotifications() {
         ArrayList<String> notifications = new ArrayList<>();
         try {
@@ -367,10 +328,6 @@ public class DatabaseManager {
         return notifications;
     }
 
-    // ─────────────────────────────────
-    // CHECK LOGIN
-    // returns role if correct, null if wrong
-    // ─────────────────────────────────
     public String checkLogin(String username, String password) {
         try {
             String sql = "SELECT role FROM users " +
@@ -387,16 +344,12 @@ public class DatabaseManager {
         } catch (Exception e) {
             System.out.println("Login check failed: " + e.getMessage());
         }
-        return null; // login failed
+        return null;
     }
 
-    // ─────────────────────────────────
-    // SAVE NEW RECEPTIONIST
-    // called by manager to create accounts
-    // ─────────────────────────────────
     public boolean saveReceptionist(String username, String password) {
         try {
-            // check if username already exists
+
             String checkSql = "SELECT id FROM users WHERE username = ?";
             PreparedStatement checkStmt = connection.prepareStatement(checkSql);
             checkStmt.setString(1, username);
@@ -407,7 +360,6 @@ public class DatabaseManager {
                 return false;
             }
 
-            // save the new receptionist
             String sql = "INSERT INTO users (username, password, role) " +
                     "VALUES (?, ?, 'RECEPTIONIST')";
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -423,10 +375,6 @@ public class DatabaseManager {
         }
     }
 
-    // ─────────────────────────────────
-    // GET ALL RECEPTIONISTS
-    // used by manager to see all accounts
-    // ─────────────────────────────────
     public ArrayList<String> getAllReceptionists() {
         ArrayList<String> list = new ArrayList<>();
         try {
@@ -445,10 +393,7 @@ public class DatabaseManager {
         return list;
     }
 
-    // ─────────────────────────────────
-    // DELETE RECEPTIONIST
-    // manager can remove an account
-    // ─────────────────────────────────
+
     public boolean deleteReceptionist(String username) {
         try {
             String sql = "DELETE FROM users " +
@@ -457,7 +402,6 @@ public class DatabaseManager {
             pstmt.setString(1, username);
             int rowsAffected = pstmt.executeUpdate();
 
-            // if rowsAffected is 0 the username was not found
             if (rowsAffected == 0) {
                 return false;
             }

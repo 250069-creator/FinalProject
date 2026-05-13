@@ -5,7 +5,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-// Builds and manages the Room Booking panel
 public class BookingPanel {
 
     private DatabaseManager db;
@@ -85,7 +84,6 @@ public class BookingPanel {
                 throw new IllegalArgumentException("Duration cannot exceed 365 days!");
             }
 
-            // save to database
             db.saveBooking(
                     reservationField.getText(),
                     guestNameField.getText(),

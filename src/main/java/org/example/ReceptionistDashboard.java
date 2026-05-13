@@ -7,9 +7,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-// Receptionist dashboard
-// This is the full hotel management system
-// Only accessible to logged-in receptionists
 public class ReceptionistDashboard {
 
     private DatabaseManager db;
@@ -22,12 +19,8 @@ public class ReceptionistDashboard {
         this.receptionistUsername  = receptionistUsername;
     }
 
-    // ─────────────────────────────
-    // Builds and shows the receptionist dashboard
-    // ─────────────────────────────
     public void show() {
 
-        // ── HEADER ──────────────────────────
         Label titleLabel = new Label("🏨  GRAND HOTEL");
         titleLabel.setStyle(
                 "-fx-font-size: 22px; " +
@@ -75,7 +68,6 @@ public class ReceptionistDashboard {
                         "-fx-border-width: 0 0 2 0;"
         );
 
-        // ── NAV BUTTONS ─────────────────────
         Button notifBtn   = new Button("🔔 Notifications");
         Button roomBtn    = new Button("🛏 Rooms");
         Button guestBtn   = new Button("👤 Guests");
@@ -94,7 +86,6 @@ public class ReceptionistDashboard {
         navBar.setPadding(new Insets(10));
         navBar.setStyle("-fx-background-color: #f5ede0;");
 
-        // ── BUILD ALL PANELS ─────────────────
         VBox notifPanel   = new NotificationPanel(db).buildPanel();
         VBox roomPanel    = new RoomPanel(db).buildPanel();
         VBox guestPanel   = new GuestPanel(db).buildPanel();
@@ -113,7 +104,6 @@ public class ReceptionistDashboard {
         mainLayout.setCenter(scrollPane);
         mainLayout.setStyle("-fx-background-color: #fffaf4;");
 
-        // ── NAV BUTTON ACTIONS ───────────────
         notifBtn.setOnAction(e -> {
             scrollPane.setContent(notifPanel);
             resetButtons(notifBtn, roomBtn, guestBtn, bookingBtn, invoiceBtn);
@@ -159,14 +149,12 @@ public class ReceptionistDashboard {
         stage.setScene(scene);
     }
 
-    // resets all nav buttons to default style
     private void resetButtons(Button... buttons) {
         for (Button btn : buttons) {
             btn.setStyle(UIHelper.NAV_DEFAULT);
         }
     }
 
-    // logs out and returns to login page
     private void logout() {
         LoginPage loginPage = new LoginPage(db, stage);
         loginPage.show();

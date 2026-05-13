@@ -7,9 +7,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-// Manager dashboard
-// Manager can ONLY create and delete receptionist accounts
-// Manager cannot access hotel operations
 public class ManagerDashboard {
 
     private DatabaseManager db;
@@ -22,12 +19,8 @@ public class ManagerDashboard {
         this.managerUsername = managerUsername;
     }
 
-    // ─────────────────────────────
-    // Builds and shows the manager dashboard
-    // ─────────────────────────────
     public void show() {
 
-        // ── HEADER ──────────────────────────
         Label titleLabel = new Label("🏨  GRAND HOTEL  —  Manager Panel");
         titleLabel.setStyle(
                 "-fx-font-size: 20px; " +
@@ -66,7 +59,6 @@ public class ManagerDashboard {
                         "-fx-border-width: 0 0 2 0;"
         );
 
-        // ── CREATE RECEPTIONIST FORM ─────────
         Label createTitle = new Label("➕ Create Receptionist Account");
         createTitle.setStyle(
                 "-fx-font-size: 17px; " +
@@ -90,7 +82,6 @@ public class ManagerDashboard {
                 newUsernameField, newPasswordField, createStatus
         ));
 
-        // ── VIEW RECEPTIONISTS ───────────────
         Label viewTitle = new Label("👥 All Receptionist Accounts");
         viewTitle.setStyle(
                 "-fx-font-size: 17px; " +
@@ -103,7 +94,6 @@ public class ManagerDashboard {
         Button viewBtn = UIHelper.makeButton("Refresh List", "#1565c0");
         viewBtn.setOnAction(e -> loadReceptionists(receptList));
 
-        // ── DELETE RECEPTIONIST ──────────────
         Label deleteTitle = UIHelper.makeLabel("Delete Receptionist Account:");
         TextField deleteUsernameField = UIHelper.makeInput("Enter username to delete...");
         Label deleteStatus = new Label("");
@@ -114,7 +104,6 @@ public class ManagerDashboard {
                 deleteUsernameField, deleteStatus, receptList
         ));
 
-        // ── FULL PANEL LAYOUT ────────────────
         VBox panel = new VBox(10);
         panel.setPadding(new Insets(25));
         panel.setAlignment(Pos.TOP_CENTER);
@@ -150,34 +139,27 @@ public class ManagerDashboard {
         stage.setTitle("Grand Hotel — Manager Dashboard");
         stage.setScene(scene);
 
-        // load receptionists list automatically
         loadReceptionists(receptList);
     }
 
-    // ─────────────────────────────
-    // Creates a new receptionist account
-    // ─────────────────────────────
     private void handleCreateReceptionist(TextField usernameField,
                                           TextField passwordField,
                                           Label statusLabel) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        // check empty fields
         if (username.isEmpty() || password.isEmpty()) {
             statusLabel.setStyle("-fx-text-fill: #c62828;");
             statusLabel.setText("❌ Please fill in both username and password!");
             return;
         }
 
-        // check minimum password length
         if (password.length() < 6) {
             statusLabel.setStyle("-fx-text-fill: #c62828;");
             statusLabel.setText("❌ Password must be at least 6 characters!");
             return;
         }
 
-        // save to database
         boolean saved = db.saveReceptionist(username, password);
 
         if (saved) {
@@ -191,9 +173,6 @@ public class ManagerDashboard {
         }
     }
 
-    // ─────────────────────────────
-    // Deletes a receptionist account
-    // ─────────────────────────────
     private void handleDeleteReceptionist(TextField deleteField,
                                           Label statusLabel,
                                           TextArea receptList) {
@@ -205,7 +184,7 @@ public class ManagerDashboard {
             return;
         }
 
-        // cannot delete yourself
+
         if (username.equals("manager")) {
             statusLabel.setStyle("-fx-text-fill: #c62828;");
             statusLabel.setText("❌ Cannot delete the manager account!");
@@ -225,9 +204,7 @@ public class ManagerDashboard {
         }
     }
 
-    // ─────────────────────────────
-    // Loads and shows all receptionists
-    // ─────────────────────────────
+
     private void loadReceptionists(TextArea receptList) {
         var records = db.getAllReceptionists();
 
@@ -244,9 +221,6 @@ public class ManagerDashboard {
         receptList.setText(sb.toString());
     }
 
-    // ─────────────────────────────
-    // Logs out and returns to login page
-    // ─────────────────────────────
     private void logout() {
         LoginPage loginPage = new LoginPage(db, stage);
         loginPage.show();

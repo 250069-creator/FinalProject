@@ -5,12 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-// Builds and manages the Invoice & Payment panel
 public class InvoicePanel {
 
     private DatabaseManager db;
 
-    // invoice accumulates charges across the session
     private Invoice invoice = new Invoice();
 
     public InvoicePanel(DatabaseManager db) {
@@ -48,8 +46,8 @@ public class InvoicePanel {
                 title,
                 UIHelper.makeLabel("Charge Amount ($):"), UIHelper.centered(amountField),
                 UIHelper.makeLabel("Payment Method:"),     UIHelper.centered(paymentBox),
-                UIHelper.makeLabel("Details:"),            UIHelper.centered(extraField),
-                UIHelper.centered(payBtn),                 UIHelper.centered(statusLabel),
+                UIHelper.makeLabel("Details:"),    UIHelper.centered(extraField),
+                UIHelper.centered(payBtn),    UIHelper.centered(statusLabel),
                 UIHelper.centered(outputArea),
                 new Separator(),
                 UIHelper.makeTitle("📋 Invoice Records"),
@@ -64,7 +62,7 @@ public class InvoicePanel {
                                TextField extraField,
                                Label statusLabel,
                                TextArea outputArea) {
-        // check empty fields
+
         if (amountField.getText().isEmpty() ||
                 paymentBox.getValue() == null ||
                 extraField.getText().isEmpty()) {
@@ -78,11 +76,10 @@ public class InvoicePanel {
             String method = paymentBox.getValue();
             String extra  = extraField.getText();
 
-            // add to invoice
+
             InvoiceItem item = new InvoiceItem(amount);
             invoice.addItem(item);
 
-            // create correct transaction type
             BillTransaction transaction;
             if (method.equals("Credit Card")) {
                 transaction = new CreditCardTransaction(amount, extra, "00000");
@@ -94,7 +91,6 @@ public class InvoicePanel {
             }
             transaction.initiateTransaction();
 
-            // save to database
             db.saveInvoice(amount, method, extra, "COMPLETED");
 
             statusLabel.setStyle("-fx-text-fill: #2e7d32;");

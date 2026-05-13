@@ -12,15 +12,12 @@ public class Room implements Search {
     boolean isSmoking;
     RoomKey roomKey;
 
-    // Constructor with validation
     public Room(String roomNumber, RoomStyle style, double bookingPrice, boolean isSmoking) {
 
-        // room number cannot be empty
         if (roomNumber == null || roomNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("Room number cannot be empty!");
         }
 
-        // price must be greater than zero
         if (bookingPrice <= 0) {
             throw new IllegalArgumentException("Booking price must be greater than zero!");
         }

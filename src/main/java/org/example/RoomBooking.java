@@ -13,35 +13,29 @@ public class RoomBooking {
     Room room;
     Guest guest;
 
-    // Constructor with validation
+
     public RoomBooking(String reservationNumber, Date startDate, int durationInDays, Room room, Guest guest) {
 
-        // reservation number cannot be empty
         if (reservationNumber == null || reservationNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("Reservation number cannot be empty!");
         }
 
-        // start date cannot be null
         if (startDate == null) {
             throw new IllegalArgumentException("Start date cannot be empty!");
         }
 
-        // duration must be at least 1 day
         if (durationInDays <= 0) {
             throw new IllegalArgumentException("Duration must be at least 1 day!");
         }
 
-        // duration cannot be more than 365 days
         if (durationInDays > 365) {
             throw new IllegalArgumentException("Duration cannot exceed 365 days!");
         }
 
-        // room cannot be null
         if (room == null) {
             throw new IllegalArgumentException("Room cannot be empty!");
         }
 
-        // guest cannot be null
         if (guest == null) {
             throw new IllegalArgumentException("Guest cannot be empty!");
         }
