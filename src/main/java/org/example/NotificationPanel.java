@@ -5,22 +5,14 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-// Builds and manages the entire Notification panel
-// Responsible for Email and Postal notification UI
 public class NotificationPanel {
 
-    // database manager passed in from Main
     private DatabaseManager db;
 
-    // constructor - receives the shared database manager
     public NotificationPanel(DatabaseManager db) {
         this.db = db;
     }
 
-    // ─────────────────────────────
-    // Builds and returns the full notification panel
-    // Called by Main.java to get the panel
-    // ─────────────────────────────
     public VBox buildPanel() {
 
         VBox panel = new VBox(10);
@@ -28,7 +20,6 @@ public class NotificationPanel {
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setStyle("-fx-background-color: #f1fff6;");
 
-        // EMAIL SECTION
         Label emailTitle      = UIHelper.makeTitle("📧 Email Notification");
         TextField emailField  = UIHelper.makeInput("Receiver email address...");
         TextArea emailMsgArea = UIHelper.makeMessageBox("Type your email message here...");
@@ -42,7 +33,6 @@ public class NotificationPanel {
         Separator sep = new Separator();
         sep.setMaxWidth(400);
 
-        // POSTAL SECTION
         Label postalTitle      = UIHelper.makeTitle("📬 Postal Notification");
         TextField addressField = UIHelper.makeInput("Receiver postal address...");
         TextArea postalMsgArea = UIHelper.makeMessageBox("Type your postal message here...");
@@ -53,7 +43,6 @@ public class NotificationPanel {
                 addressField, postalMsgArea, postalStatus
         ));
 
-        // RECORDS SECTION
         Separator sep2        = new Separator();
         sep2.setMaxWidth(400);
         Label recordsTitle    = UIHelper.makeTitle("📋 Sent Notifications History");
@@ -64,7 +53,6 @@ public class NotificationPanel {
                 loadRecords(recordsArea)
         );
 
-        // add everything to the panel
         panel.getChildren().addAll(
                 emailTitle,
                 UIHelper.makeLabel("Receiver Email:"),    UIHelper.centered(emailField),
@@ -83,27 +71,23 @@ public class NotificationPanel {
         return panel;
     }
 
-    // ─────────────────────────────
-    // Handles the Send Email button click
-    // ─────────────────────────────
     private void handleEmailSend(TextField emailField,
                                  TextArea emailMsgArea,
                                  Label emailStatus) {
-        // check empty fields
+
         if (emailField.getText().isEmpty() ||
                 emailMsgArea.getText().isEmpty()) {
             showError(emailStatus, "❌ Please fill in all fields!");
             return;
         }
 
-        // check valid email format
+
         if (!emailField.getText().contains("@")) {
             showError(emailStatus, "❌ Please enter a valid email address!");
             return;
         }
 
         try {
-            // create EmailNotification object and send
             EmailNotification notif = new EmailNotification(
                     "N001",
                     emailMsgArea.getText(),
@@ -111,7 +95,6 @@ public class NotificationPanel {
             );
             notif.send();
 
-            // save to database
             db.saveNotification(
                     "EMAIL",
                     emailField.getText(),
@@ -129,13 +112,9 @@ public class NotificationPanel {
         }
     }
 
-    // ─────────────────────────────
-    // Handles the Send Postal button click
-    // ─────────────────────────────
     private void handlePostalSend(TextField addressField,
                                   TextArea postalMsgArea,
                                   Label postalStatus) {
-        // check empty fields
         if (addressField.getText().isEmpty() ||
                 postalMsgArea.getText().isEmpty()) {
             showError(postalStatus, "❌ Please fill in all fields!");
@@ -143,7 +122,6 @@ public class NotificationPanel {
         }
 
         try {
-            // create PostalNotification object and send
             PostalNotification notif = new PostalNotification(
                     "N002",
                     postalMsgArea.getText(),
@@ -151,7 +129,6 @@ public class NotificationPanel {
             );
             notif.send();
 
-            // save to database
             db.saveNotification(
                     "POSTAL",
                     addressField.getText(),
@@ -169,9 +146,6 @@ public class NotificationPanel {
         }
     }
 
-    // ─────────────────────────────
-    // Loads all notification records from database
-    // ─────────────────────────────
     private void loadRecords(TextArea recordsArea) {
         var records = db.getAllNotifications();
 
@@ -191,25 +165,16 @@ public class NotificationPanel {
         recordsArea.setText(sb.toString());
     }
 
-    // ─────────────────────────────
-    // Shows red error message on a label
-    // ─────────────────────────────
     private void showError(Label label, String message) {
         label.setStyle("-fx-text-fill: #c62828; -fx-font-size: 12px;");
         label.setText(message);
     }
 
-    // ─────────────────────────────
-    // Shows green success message on a label
-    // ─────────────────────────────
     private void showSuccess(Label label, String message) {
         label.setStyle("-fx-text-fill: #2e7d32; -fx-font-size: 12px;");
         label.setText(message);
     }
 
-    // ─────────────────────────────
-    // Returns current date and time as string
-    // ─────────────────────────────
     private String getCurrentDateTime() {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         java.time.format.DateTimeFormatter formatter =

@@ -5,7 +5,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-// Builds and manages the Guest Management panel
 public class GuestPanel {
 
     private DatabaseManager db;
@@ -60,7 +59,6 @@ public class GuestPanel {
                                      TextField phoneField,
                                      Label statusLabel,
                                      TextArea outputArea) {
-        // check empty fields
         if (nameField.getText().isEmpty() ||
                 emailField.getText().isEmpty() ||
                 phoneField.getText().isEmpty()) {
@@ -78,7 +76,6 @@ public class GuestPanel {
                     phoneField.getText()
             );
 
-            // save to database
             db.saveGuest(
                     guest.name,
                     guest.email,

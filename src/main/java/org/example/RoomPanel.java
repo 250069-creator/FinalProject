@@ -5,7 +5,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-// Builds and manages the Room Management panel
 public class RoomPanel {
 
     private DatabaseManager db;
@@ -61,7 +60,7 @@ public class RoomPanel {
                                TextField priceField,
                                Label statusLabel,
                                TextArea outputArea) {
-        // check empty fields
+
         if (roomNumberField.getText().isEmpty() ||
                 styleBox.getValue() == null ||
                 priceField.getText().isEmpty()) {
@@ -75,7 +74,6 @@ public class RoomPanel {
             double price    = Double.parseDouble(priceField.getText());
             Room room       = new Room(roomNumberField.getText(), style, price, false);
 
-            // save to database
             db.saveRoom(
                     room.roomNumber,
                     room.style.toString(),

@@ -7,26 +7,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-// Login page shown when app first opens
-// User must enter correct username and password
-// Routes to correct dashboard based on role
 public class LoginPage {
 
     private DatabaseManager db;
     private Stage stage;
 
-    // constructor receives db and the main window
     public LoginPage(DatabaseManager db, Stage stage) {
         this.db    = db;
         this.stage = stage;
     }
 
-    // ─────────────────────────────
-    // Builds and shows the login page
-    // ─────────────────────────────
     public void show() {
 
-        // ── HEADER ──────────────────────────
         Label hotelLabel = new Label("🏨  GRAND HOTEL");
         hotelLabel.setStyle(
                 "-fx-font-size: 30px; " +
@@ -50,7 +42,6 @@ public class LoginPage {
         headerBox.setAlignment(Pos.CENTER);
         headerBox.setPadding(new Insets(30, 0, 20, 0));
 
-        // ── LOGIN FORM ───────────────────────
         Label usernameLabel = new Label("Username:");
         usernameLabel.setStyle(
                 "-fx-font-size: 13px; " +
@@ -96,11 +87,9 @@ public class LoginPage {
                         "-fx-text-fill: #2c2c2c;"
         );
 
-        // status label for errors
         Label statusLabel = new Label("");
         statusLabel.setStyle("-fx-font-size: 12px;");
 
-        // login button
         Button loginBtn = new Button("Login");
         loginBtn.setMaxWidth(320);
         loginBtn.setPrefWidth(320);
@@ -116,17 +105,14 @@ public class LoginPage {
         loginBtn.setOnMouseEntered(e -> loginBtn.setOpacity(0.85));
         loginBtn.setOnMouseExited(e -> loginBtn.setOpacity(1.0));
 
-        // what happens when login button is clicked
         loginBtn.setOnAction(e -> handleLogin(
                 usernameField, passwordField, statusLabel
         ));
 
-        // also allow pressing Enter key to login
         passwordField.setOnAction(e -> handleLogin(
                 usernameField, passwordField, statusLabel
         ));
 
-        // hint text for default manager credentials
         Label hintLabel = new Label("Default Manager → username: manager   password: manager123");
         hintLabel.setStyle(
                 "-fx-font-size: 10px; " +
@@ -134,7 +120,6 @@ public class LoginPage {
                         "-fx-padding: 10 0 0 0;"
         );
 
-        // ── FORM CARD ────────────────────────
         VBox formCard = new VBox(10);
         formCard.setAlignment(Pos.CENTER_LEFT);
         formCard.setMaxWidth(350);
@@ -152,22 +137,17 @@ public class LoginPage {
                 hintLabel
         );
 
-        // ── FULL PAGE LAYOUT ─────────────────
         VBox fullPage = new VBox(0, headerBox, formCard);
         fullPage.setAlignment(Pos.TOP_CENTER);
         fullPage.setPadding(new Insets(20));
         fullPage.setStyle("-fx-background-color: #fdf3e3;");
 
-        // show the login scene
         Scene loginScene = new Scene(fullPage, 500, 560);
         stage.setTitle("Grand Hotel — Login");
         stage.setScene(loginScene);
         stage.show();
     }
 
-    // ─────────────────────────────
-    // Handles login button click
-    // ─────────────────────────────
     private void handleLogin(TextField usernameField,
                              PasswordField passwordField,
                              Label statusLabel) {
@@ -175,46 +155,38 @@ public class LoginPage {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        // check empty fields
         if (username.isEmpty() || password.isEmpty()) {
             statusLabel.setStyle("-fx-text-fill: #c62828;");
             statusLabel.setText("❌ Please enter username and password!");
             return;
         }
 
-        // check credentials in database
         String role = db.checkLogin(username, password);
 
         if (role == null) {
-            // wrong username or password
+
             statusLabel.setStyle("-fx-text-fill: #c62828;");
             statusLabel.setText("❌ Wrong username or password. Try again!");
-            passwordField.clear(); // clear password field only
+            passwordField.clear();
             return;
         }
 
-        // login successful — route to correct dashboard
+
         if (role.equals("MANAGER")) {
-            // manager goes to manager dashboard
+
             openManagerDashboard(username);
 
         } else if (role.equals("RECEPTIONIST")) {
-            // receptionist goes to main hotel system
+
             openReceptionistDashboard(username);
         }
     }
 
-    // ─────────────────────────────
-    // Opens the Manager dashboard
-    // ─────────────────────────────
     private void openManagerDashboard(String username) {
         ManagerDashboard managerDashboard = new ManagerDashboard(db, stage, username);
         managerDashboard.show();
     }
 
-    // ─────────────────────────────
-    // Opens the Receptionist dashboard (main hotel system)
-    // ─────────────────────────────
     private void openReceptionistDashboard(String username) {
         ReceptionistDashboard receptionistDashboard =
                 new ReceptionistDashboard(db, stage, username);
